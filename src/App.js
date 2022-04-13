@@ -4,6 +4,7 @@ import './App.css';
 function App() {
 
     const [myWorker, setMyWorker] = useState(null);
+    const [time, setTime] = useState(0)
 
     useEffect(() => {
         let newUrl = (new URL('./app.worker.js', import.meta.url) ),
@@ -11,6 +12,7 @@ function App() {
         setMyWorker( newWorker );
 
         return () => {
+            console.log("web worker se terminó");
             newWorker.terminate();
         }
     }, [])
@@ -18,15 +20,16 @@ function App() {
     useEffect(() => {
         if (myWorker) {
             myWorker.onmessage = function (e) {
-                console.log(e.data);
+                setTime(oldTime => {
+                    document.title = e.data;
+                    return e.data;
+                });
             };
         }
     }, [myWorker])
 
     function buttonHandler(e) {
-        setInterval(() => {
-            myWorker.postMessage([Math.random()]);
-        }, 1000)
+        myWorker.postMessage(["work", time]);
     }
 
     return (

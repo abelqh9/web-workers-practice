@@ -1,3 +1,9 @@
 onmessage = function (e) {
-    postMessage(Math.random());
+    let [ status, initialTime ] = e.data;
+
+    if (status === "work") {
+        setInterval(() => {
+            postMessage(initialTime++);
+        }, 1000);
+    }
 }
