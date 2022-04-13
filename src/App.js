@@ -1,25 +1,39 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react'
 import './App.css';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+    const [myWorker, setMyWorker] = useState(null);
+
+    useEffect(() => {
+        let newUrl = (new URL('./app.worker.js', import.meta.url) ),
+            newWorker = new Worker(newUrl); 
+        setMyWorker( newWorker );
+
+        return () => {
+            newWorker.terminate();
+        }
+    }, [])
+
+    useEffect(() => {
+        if (myWorker) {
+            myWorker.onmessage = function (e) {
+                console.log(e.data);
+            };
+        }
+    }, [myWorker])
+
+    function buttonHandler(e) {
+        setInterval(() => {
+            myWorker.postMessage([Math.random()]);
+        }, 1000)
+    }
+
+    return (
+        <div className="App">
+            <button onClick={buttonHandler}>Press here</button>     
+        </div>
+    );
 }
 
 export default App;
